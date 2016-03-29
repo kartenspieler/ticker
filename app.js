@@ -1,16 +1,21 @@
-var express = require('express');
-var app = express();
-var port     = process.env.PORT || 8080;
-var mongoose = require('mongoose');
-var passport = require('passport');
-var flash    = require('connect-flash');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
+var express      = require('express');
+var app          = express();
+var port         = process.env.PORT || 8080;
+var mongoose     = require('mongoose');
+var passport     = require('passport');
+var flash        = require('connect-flash');
+var path         = require('path');
+var favicon      = require('serve-favicon');
+var logger       = require('morgan');
 var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+var bodyParser   = require('body-parser');
 var session      = require('express-session');
-var handlebars = require('express-handlebars').create({defaultLayout:'main'});
+var handlebars   = require('express-handlebars').create({defaultLayout:'main'});
+var credentials  = require('./app/config/credentials.js');
+var database     = require('./app/config/database.js');
+
+
+mongoose.connect(database.url);
 
 // Block the header from containing information
 // about the server
@@ -25,10 +30,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(session({ secret: '' })); // session secret
+app.use(session({ secret: credentials.securityPhrase })); // session secret
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
+
+require('./app/routes.js')(app, passport);
+require('./app/config/passport')(passport);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -63,3 +71,6 @@ app.use(function(err, req, res, next) {
 
 
 module.exports = app;
+
+app.listen(port);
+console.log('The magic happens on port ' + port);
