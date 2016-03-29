@@ -1,5 +1,6 @@
 node_modules
 *~
 .DS_Store
-app/config/credentials.js
-app/config/database.js
+#app/config/credentials.js
+#app/config/passport.js
+#app/config/database.js
